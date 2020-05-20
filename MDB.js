@@ -1,6 +1,23 @@
+document.addEventListener("submit",search)
+function search(event){
+    event.preventDefault()
+    console.log("name", event)
+    var inputValue = document.querySelector('input').value
+    //debugger
+    getInfo(inputValue)
+}
 
-function getInfo() {
-    fetch("https://deezerdevs-deezer.p.rapidapi.com/search?q=lp", {
+function getInfo(name) {
+    var searchUrl = "https://deezerdevs-deezer.p.rapidapi.com/search?q=" + name
+    if (!name) {
+        return
+    }
+    var ul = document.querySelector('.ulItem')
+    var li = document.createElement('li')
+    li.innerText = 'Cargando...'
+    ul.append(li)
+
+    fetch(searchUrl, {
         "method": "GET",
         "headers": {
             "x-rapidapi-host": "deezerdevs-deezer.p.rapidapi.com",
@@ -12,32 +29,39 @@ function getInfo() {
     })
     .then(function(response) {
         console.log({ response });
-        var ul = document.querySelector('.ulItem')
+        ul.innerHTML = ''
 
         function dataOfCell (info, clase) {
             var span = document.createElement('span')
             span.innerText = info
             span.setAttribute('class', clase)
-            console.log(clase)
             return span
         }
 
         var dataList = response.data
 
+        if (!dataList) {
+            return
+        }
+
         for (var itemList of dataList) {
 
             var li = document.createElement('li')
             var cover = document.createElement('img')
+            var dataContainer = document.createElement('div')
             var title = dataOfCell(itemList.album.title, 'title')
             var picture = document.createElement('img')
             var name = dataOfCell(itemList.artist.name, 'name')
 
             cover.setAttribute('src', itemList.album.cover)
+            cover.setAttribute('class', 'cover')
             picture.setAttribute('src', itemList.artist.picture_small)
+            picture.setAttribute('class', 'picture')
 
-            var allData = [title, cover, name, picture]
+            dataContainer.append(title, picture, name)
+            li.append(cover)
 
-            li.append(...allData)
+            li.append(dataContainer)
 
             ul.append(li)
         }
